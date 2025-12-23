@@ -1,28 +1,50 @@
 #include <stdio.h>
+#include <string.h>
 
-struct student {
-    char name[20];
+struct studentNode {
+    char name[ 20 ] ;
     int age ;
     char sex ;
-    float gpa;
+    float gpa ;
+    struct studentNode *next ;
 } ;
 
-void upgrade(struct student *child) {
-  
-    if ( child->sex == 'M' || child->sex == 'm' ) {
-        child->gpa = child->gpa * 1.10f ; 
-    } else if (child->sex == 'F' || child->sex == 'f') {
-        child->gpa = child->gpa * 1.20f ; 
+void SaveNode( struct studentNode *child, char n[], int a, char s, float g ) ;
+void GoNext2( struct studentNode ***walk ) ;
+
+int main() {
+    struct studentNode *start, *now1, **now2 ;
+    
+    start = new struct studentNode ;
+    SaveNode( start, "one", 6, 'M', 3.11 ) ;
+    start->next = new struct studentNode ;
+    SaveNode( start->next, "two", 8, 'F', 3.22 ) ;
+    start->next->next = new struct studentNode ;
+    SaveNode( start->next->next, "three", 10, 'M', 3.33 ) ;
+    start->next->next->next = new struct studentNode ;
+    SaveNode( start->next->next->next, "four", 12, 'F', 3.44 ) ;
+
+    now1 = start ;
+    now2 = &now1 ;
+    GoNext2( &now2 ) ;
+    printf( "%s\n", (*now2)->name ) ;
+
+    return 0 ;
+}
+
+void GoNext2( struct studentNode ***walk ) {
+    if ( *walk != NULL && (**walk) != NULL && (**walk)->next != NULL ) {
+        **walk = (**walk)->next ;
+        printf( "Inside GoNext2: %s\n", (**walk)->name ) ;
+    } else {
+        printf( "Cannot move to next node.\n" ) ;
     }
 }
 
-int main() {
-    struct student aboy ;
-    aboy.sex = 'M' ;
-    aboy.gpa = 3.00f ;
-
-    upgrade(&aboy) ; 
-    printf("%.2f", aboy.gpa) ; 
-
-    return 0 ;
-}//end function
+void SaveNode( struct studentNode *child, char n[], int a, char s, float g ) {
+    strcpy( child->name, n ) ;
+    child->age = a ;
+    child->sex = s ;
+    child->gpa = g ;
+    child->next = NULL ;
+}//end fuction
