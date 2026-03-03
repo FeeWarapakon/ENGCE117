@@ -1,66 +1,49 @@
 #include <stdio.h>
 
-int *Dijkstra(int *L, int n) {
-    int *d_final = new int[n];
-    bool *visited = new bool[n];
-    int INF = 999999;
+int max_v = 0;
+int *best_x = NULL;
 
-    for (int i = 0; i < n; i++) {
-        d_final[i] = INF;
-        visited[i] = false;
+int KnapsackBT(int *w, int *v, int n, int wx, int i, int *x) {
+    if (best_x == NULL) {
+        best_x = new int[n];
+        for (int k = 0; k < n; k++) best_x[k] = 0;
     }
-
-    d_final[0] = 0;
-
-    for (int count = 0; count < n; count++) {
-        int u = -1;
-        int min = INF;
-        
-        for (int i = 0; i < n; i++) {
-            if (!visited[i] && d_final[i] < min) {
-                min = d_final[i];
-                u = i;
+    if (i == n) {
+        int current_v = 0;
+        int current_w = 0;
+        for (int k = 0; k < n; k++) {
+            if (x[k] == 1) {
+                current_w += w[k];
+                current_v += v[k];
             }
         }
-
-        if (u == -1) break;
-        visited[u] = true;
-
-        for (int v = 0; v < n; v++) {
-            int weight = L[u * n + v];
-            if (weight != -1 && !visited[v]) {
-                if (d_final[u] + weight < d_final[v]) {
-                    d_final[v] = d_final[u] + weight;
-                }
-            }
+        if (current_w <= wx && current_v > max_v) {
+            max_v = current_v;
+            for (int k = 0; k < n; k++) best_x[k] = x[k];
         }
+        return max_v;
     }
 
-    int *res = new int[n - 1];
-    res[0] = d_final[1];
-    res[1] = 60;         
-    res[2] = d_final[3];
-    res[3] = d_final[4];
-
-    return res;
+    x[i] = 0;
+    KnapsackBT(w, v, n, wx, i + 1, x);
+    x[i] = 1;
+    KnapsackBT(w, v, n, wx, i + 1, x);
+    if (i == 0) {
+        for (int k = 0; k < n; k++) x[k] = best_x[k];
+    }
+    return max_v;
 }
 
 int main() {
-    int n = 5, i = 0, j = 0, *d, *g;
-    g = new int[n * n];
-    for (i = 0; i < n; i++)
-        for (j = 0; j < n; j++)
-            g[i * n + j] = -1;
-
-    g[0 * n + 1] = 100; g[0 * n + 2] = 80;
-    g[0 * n + 3] = 30;  g[0 * n + 4] = 10;
-    g[1 * n + 2] = 20;  g[3 * n + 1] = 20;
-    g[3 * n + 2] = 20;  g[4 * n + 3] = 10;
-
-    d = Dijkstra(g, n);
-
-    for (i = 0; i < n - 1; i++)
-        printf("%d ", d[i]);
+    int n = 5, wx = 11;
+    int w[5] = { 1, 2, 5, 6, 7 };
+    int v[5] = { 1, 6, 18, 22, 28 };
+    int *x, vx;
+    
+    x = new int[n];
+    vx = KnapsackBT(w, v, n, wx, 0, x);
+    printf("Value = %d\n", vx);
+    for (int i = 0; i < n; i++) printf("%d ", x[i]);
 
     return 0;
 }
